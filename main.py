@@ -8,7 +8,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional, List
-import jwt
+from jose import JWTError, jwt
 from datetime import datetime, timedelta
 import bcrypt
 import sqlite3
@@ -167,11 +167,12 @@ def get_user_from_token(credentials: HTTPAuthorizationCredentials = Depends(secu
                 detail="Invalid authentication credentials"
             )
         return user_id
-    except jwt.PyJWTError:
+    except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials"
         )
+
 
 # ========== API Endpoints ==========
 
