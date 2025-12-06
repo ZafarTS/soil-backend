@@ -31,7 +31,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "*",  # Development
-        "https://lighthearted-hummingbird-6f0239.netlify.app/",  # Production frontend
+        "https://lighthearted-hummingbird-6f0239.netlify.app",  # Production frontend (trailing slash olib tashlandi)
         "http://localhost:8081",  # Expo local
     ],
     allow_credentials=True,
@@ -40,8 +40,6 @@ app.add_middleware(
 )
 
 # ========== Security ==========
-
-import bcrypt
 
 def get_password_hash(password: str) -> str:
     """Parolni hash qilish"""
@@ -149,12 +147,6 @@ class ModelVersion(BaseModel):
     description: Optional[str] = None
 
 # ========== Helper Functions ==========
-
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
