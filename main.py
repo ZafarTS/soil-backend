@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 import jwt
 from datetime import datetime, timedelta
-from passlib.context import CryptContext
+import bcrypt
 import sqlite3
 from pathlib import Path
 import json
@@ -18,7 +18,7 @@ import os
 
 # ========== Configuration ==========
 
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+SECRET_KEY = os.getenv("SECRET_KEY", "Zafar@37uy")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 kun
 
@@ -29,7 +29,11 @@ app = FastAPI(title="Tuproq Tahlili API", version="1.0.0")
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Production'da o'zgartiring!
+    allow_origins=[
+        "*",  # Development
+        "https://lighthearted-hummingbird-6f0239.netlify.app/",  # Production frontend
+        "http://localhost:8081",  # Expo local
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,7 +41,21 @@ app.add_middleware(
 
 # ========== Security ==========
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+import bcrypt
+
+def get_password_hash(password: str) -> str:
+    """Parolni hash qilish"""
+    password_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    return hashed.decode('utf-8')
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Parolni tekshirish"""
+    password_bytes = plain_password.encode('utf-8')
+    hashed_bytes = hashed_password.encode('utf-8')
+    return bcrypt.checkpw(password_bytes, hashed_bytes)
+
 security = HTTPBearer()
 
 # ========== Database ==========
